@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-
+const moment = require('moment');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const saltRounds = 10;
@@ -22,6 +22,7 @@ const userSchema = mongoose.Schema({
         type: String,
         maxlength: 50
     },
+    image: String,
     role: {
         type: Number,
         default : 0
@@ -66,7 +67,9 @@ userSchema.methods.comparePassword = function(plainPassword, cb) {
 userSchema.methods.generateToken = function(cb) {
     var user = this;
     var token = jwt.sign(user._id.toHexString(),'secret')
-    
+    var oneHour = moment().add(1, 'hour').valueOf();
+
+    user.tokenExp = oneHour;
     user.token = token;
     user.save(function (err, user){
         if(err) return cb(err)
@@ -88,7 +91,7 @@ userSchema.statics.findByToken = function(token, cb) {
 }
 
 
-const User = mongoose.model('User', userSchema)
+const User = mongoose.model('User', userSchema);
 
 module.exports = { User }
 

@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import {loginUser} from '../../actions/user_actions';
 import { Link } from 'react-router-dom';
+import { Form, Button} from 'react-bootstrap';
 
 
 class RegisterLogin extends Component {
@@ -137,14 +138,14 @@ class RegisterLogin extends Component {
                                         SignUp
                                     </button>
                                 </Link>
-                            </div>
-
-                            <div className="col s6">
+                            
                                 
                                 
                             </div>
                         </div>
                     </form>
+
+
                 </div>
             </div>
         );
