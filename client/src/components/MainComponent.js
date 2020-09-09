@@ -6,6 +6,7 @@ import Register from "./Register/register";
 import Footer from "./Footer/footer";
 import TopNav from "./Navbar/topNav";
 import Home from "./Home/home";
+import UploadProducPage from './UploadProduct/uploadProductPage'
 
 import Auth from "../hoc/auth";
 
@@ -19,6 +20,7 @@ function Main() {
           {/* <Route path="/about" component={Auth(About, false)} /> */}
           <Route path="/login" component={Auth(Login, false)} />
           <Route path="/register" component={Auth(Register, false)} />
+          <Route path="/product/upload" component={Auth(UploadProducPage, true)} />
         </Switch>
       </div>
 
