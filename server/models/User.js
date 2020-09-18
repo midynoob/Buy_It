@@ -5,7 +5,7 @@ const jwt = require('jsonwebtoken');
 const saltRounds = 10;
 
 const userSchema = mongoose.Schema({
-    name: {
+    firstname: {
         type:String,
         maxlength:50
     },

@@ -42,9 +42,9 @@ function RightMenu(props) {
             </Nav.Link>
             
             
-                <Button variant="outline-primary" type="submit" onClick={logoutHandler}>
-                    Logout
-                </Button>
+            <Button variant="outline-primary" type="submit" onClick={logoutHandler}>
+                Logout
+            </Button>
             
         </Nav> 
     )

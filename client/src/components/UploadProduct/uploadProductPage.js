@@ -49,6 +49,11 @@ const UploadProductPage = (props) => {
 
     const onSubmit = (event) => {
         event.preventDefault();
+        
+
+        if(!TitleValue || !DescriptionValue || !PriceValue || !CategoryValue || !Images) {
+            return alert('fill all the items')
+        }
 
         const variables = {
             writer: props.user.userData._id,

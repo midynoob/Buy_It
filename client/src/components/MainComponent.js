@@ -6,7 +6,7 @@ import Register from "./Register/register";
 import Footer from "./Footer/footer";
 import TopNav from "./Navbar/topNav";
 import Home from "./Home/home";
-import UploadProducPage from './UploadProduct/uploadProductPage'
+import UploadProducPage from './UploadProduct/uploadProductPage';
 
 import Auth from "../hoc/auth";
 
