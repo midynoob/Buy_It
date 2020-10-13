@@ -40,7 +40,6 @@ function RadioBox(props) {
                     <Accordion.Collapse eventKey="0">
                         <Card.Body>
                             <FormGroup onChange={handleChange}>
-                                {console.log(renderRadioBox())}
                                 {renderRadioBox()}
                             </FormGroup>
                         </Card.Body>

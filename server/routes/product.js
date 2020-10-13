@@ -55,7 +55,31 @@ router.post("/uploadProduct", auth, (req, res) => {
 });
 
 
-router.post("/getProducts", (req, res) => {
+router.get("/products_by_id", (req, res) => {
+    let type = req.query.type
+    let productIds = req.query.id
+
+    if(type === "array"){
+        let ids = req.query.id.split(',');
+        productIds = [];
+        productIds = ids.map(item => {
+            return item
+        })
+    }
+
+    Product.find({ '_id': { $in: productIds }})
+        .populate('writer')
+        .exec((err, product) =>{
+            if(err) return res.status(400).send(err)
+            return res.status(200).send(product)
+
+        })
+
+});
+
+
+
+router.post("/getProducts", async (req, res) => {
 
     let order = req.body.order ? req.body.order : "desc";
     let sortBy = req.body.sortBy ? req.body.sortBy : "_id";
@@ -64,6 +88,9 @@ router.post("/getProducts", (req, res) => {
 
 
     let findArgs = {};
+    let term = req.body.searchTerm;
+
+
     filters = req.body.filters;
 
     for(let key in filters) {
@@ -81,15 +108,34 @@ router.post("/getProducts", (req, res) => {
         }
     }
 
-    Product.find(findArgs)
-        .populate("writer")
-        .sort([[sortBy, order]])
-        .skip(skip)
-        .limit(limit)
-        .exec(( err, products ) => {
-            if(err) return res.status(400).json({success: false , err})
-            res.status(200).json({ success: true, products, postSize: products.length })
-        })
+    if(term) {
+
+        await Product.find(findArgs)
+            .find({$text: {$search: term ,$caseSensitive: false, 
+            $diacriticSensitive: false}})
+            .populate("writer")
+            .sort([[sortBy, order]])
+            .skip(skip)
+            .limit(limit)
+            .exec(( err, products ) => {
+                if(err) return res.status(400).json({success: false , err})
+                res.status(200).json({ success: true, products, postSize: products.length })
+            })
+
+
+    } else {
+        await Product.find(findArgs)
+            .populate("writer")
+            .sort([[sortBy, order]])
+            .skip(skip)
+            .limit(limit)
+            .exec(( err, products ) => {
+                if(err) return res.status(400).json({success: false , err})
+                res.status(200).json({ success: true, products, postSize: products.length })
+            })
+    }
+
+    
 
 });
 

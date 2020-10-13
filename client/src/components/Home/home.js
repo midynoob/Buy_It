@@ -1,8 +1,11 @@
 import Axios from 'axios';
 import React, { Component, useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import CheckBox from './CheckBox';
 import RadioBox from './RadioBox';
 import {price, category} from './Datas';
+import Search from './Search';
+import {Container} from 'react-bootstrap';
 
 function Home() {
 
@@ -10,6 +13,7 @@ function Home() {
     const [Skip, setSkip] = useState(0)
     const [Limit, setLimit] = useState(6)
     const [PostSize, setPostSize] = useState(0)
+    const [SearchTerms, setSearchTerms] = useState("")
     const [Filters, setFilters] = useState({
         category: [],
         price: []
@@ -63,7 +67,10 @@ function Home() {
     const renderCards = Products.map((product, index) => {
         return(
             <div>
-                {product.title}
+                <Link to={`/product/${product._id}`}>
+                    {product.title}
+                </Link>
+                {/* <img src={`http://localhost:5000/${product.images[0]}`} /> */}
             </div>
         )
     })
@@ -94,7 +101,6 @@ function Home() {
     }
 
     const handleFilters = (filters, category) => {
-        console.log(filters);
         const newFilters = {...Filters}
 
         newFilters[category] = filters
@@ -109,26 +115,49 @@ function Home() {
 
     }
 
+    const updateSearchTerms = (newSearchTerm) => {
+        
+
+        console.log(newSearchTerm)
+        const variables = {
+            skip: 0,
+            limit: Limit,
+            filters: Filters,
+            searchTerm: newSearchTerm
+
+        }
+        setSkip(0)
+        setSearchTerms(newSearchTerm)
+        getProducts(variables)
+
+    }
 
     return (
         <div>
-            Home
-            <CheckBox 
-                handleFilters={filters => handleFilters(filters, "categorys")}
-                list={category}
-            />
-            <RadioBox 
-                handleFilters={filters => handleFilters(filters, "price")}
-                list={price}
-            />
-            <br />
-            {renderCards}
-            {PostSize >= Limit &&
-                <div style={{justifyContent: 'center', display: 'flex'}}>
-                    <button onClick={onLoadMore}>load More</button>
-                </div>
-            }
+            HOME
+            <Container>
+                <CheckBox 
+                    handleFilters={filters => handleFilters(filters, "categorys")}
+                    list={category}
+                />
+                <RadioBox 
+                    handleFilters={filters => handleFilters(filters, "price")}
+                    list={price}
+                />
+
+                <Search 
+                    refreshFunction={updateSearchTerms}
+                />
+                <br />
+                {renderCards}
+                {PostSize >= Limit &&
+                    <div style={{justifyContent: 'center', display: 'flex'}}>
+                        <button onClick={onLoadMore}>load More</button>
+                    </div>
+                }
+            </Container>
                 
+                    
         </div>
     );
 }

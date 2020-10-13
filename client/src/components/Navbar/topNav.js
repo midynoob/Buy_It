@@ -1,7 +1,6 @@
 import React from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css'
 import {Navbar,Nav,NavDropdown,Button,Form,FormControl} from 'react-bootstrap';
-import {FaShoppingCart} from 'react-icons/fa'
 import RightMenu from './right';
 
  function TopNav(){
@@ -73,7 +72,7 @@ import RightMenu from './right';
     {/* <Nav ><Nav.Link href="#login-signup">Login/Signup</Nav.Link></Nav>     */}
     <RightMenu />
   </Navbar.Collapse>
-  <Nav className="order-third"><Nav.Link href="#cart"><FaShoppingCart style={{ width: '1.5rem' ,height:'1.5rem'}}/></Nav.Link></Nav>
+  
 </Navbar>
 </div>
    );

@@ -1,8 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const { User } = require("../models/User");
-
+const { Product } = require("../models/Product");
 const { auth } = require("../middleware/auth");
+const { Payment } = require('../models/Payment');
+const async = require('async');
 
 //=================================
 //             User
@@ -18,6 +20,8 @@ router.get("/auth", auth, (req, res) => {
         lastname: req.user.lastname,
         role: req.user.role,
         image: req.user.image,
+        cart:req.user.cart,
+        history:req.user.history
     });
 });
 
@@ -67,5 +71,152 @@ router.get("/logout", auth, (req, res) => {
         });
     });
 });
+
+
+router.post("/addToCart", auth, (req,res) => {
+    User.findOne({_id: req.user._id}
+        , (err,userInfo) => {
+
+            let duplicate = false;
+            userInfo.cart.forEach((item) => {
+                if(item.id === req.query.productId) {
+                    duplicate = true;
+                }
+            })
+            
+
+            if(duplicate) {
+                User.findOneAndUpdate(
+                    {_id: req.user._id, "cart.id": req.query.productId },
+                    { $inc: { "cart.$.quantity": 1 }},
+                    { new: true},
+                    () => {
+                        if(err) return res.json({ success: false, err });
+                        res.status(200).json(userInfo.cart)
+                    }
+                )
+            } else {
+                User.findOneAndUpdate(
+                    {_id: req.user._id},
+                    {
+                        $push: {
+                            cart: {
+                                id: req.query.productId,
+                                quantity: 1,
+                                date: Date.now()
+                            }
+                        }
+                    },
+                    { new: true },
+                    (err, userInfo) => {
+                        if(err) return res.json({ success: false, err});
+                        res.status(200).json(userInfo.cart)
+                    }
+                )
+            }
+        })
+})
+
+
+
+
+router.get('/removeFromCart', auth, (req,res) => {
+    User.findOneAndUpdate(
+        { _id: req.user._id },
+        {
+            "$pull":
+                {"cart": {"id": req.query._id} }
+        },
+        {new: true},
+        (err, userInfo) => {
+            let cart = userInfo.cart;
+            let array = cart.map(item => {
+                return item.id
+            })
+
+            Product.find({'_id': { $in : array}})
+                .populate('writer')
+                .exec((err, cartDetail )=> {
+                    return res.status(200).json({
+                        cartDetail,
+                        cart
+                    })
+                })
+        }
+
+        
+    )
+})
+
+
+
+router.post('/successBuy', auth, (req, res) => {
+    let history = [];
+    let transactionData = {};
+
+    req.body.cartDetail.forEach((item) => {
+        history.push({
+            dateOfPurchase: Date.now(),
+            name: item.title,
+            id: item._id,
+            price: item.price,
+            quantity: item.quantity,
+            paymentId: req.body.paymentData.paymentID
+        })
+    })
+
+    transactionData.user = {
+        id: req.user._id,
+        name: req.user.firstname,
+        lastname: req.user.lastname,
+        email: req.user.email
+    }
+
+    transactionData.data = req.body.paymentData;
+    transactionData.product = history;
+    
+    User.findOneAndUpdate(
+        {_id: req.user._id},
+        {$push: {history: history}, $set: {cart: []}},
+        {new: true},
+        (err,user) => {
+            if(err) return res.json({success: false, err});
+
+            const payment = new Payment(transactionData)
+            payment.save((err, doc) => {
+                if(err) return res.json({success: false, err})
+
+                let products = [];
+                doc.product.forEach(item => {
+                    products.push({id: item.id, quantity: item.quantity})
+                })
+
+                async.eachSeries(products, (item,callback) => {
+                    Product.update(
+                        {_id: item.id},
+                        {
+                            $inc: {
+                                "sold": item.quantity
+                            }
+                        },
+                        {new: false},
+                        callback
+                    )
+                },(err) => {
+                    if(err) return res.json({success: false, err})
+                    res.status(200).json({
+                        success: true,
+                        cart: user.cart,
+                        cartDetail: []
+                    })
+                })
+            })
+        }
+    )
+
+
+
+})
+
 
 module.exports = router;

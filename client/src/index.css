@@ -11,3 +11,15 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+#log{
+  margin-top: 5vh;
+padding:30px;
+border-radius:10px;
+box-shadow:0px 0px 5px 0px #000;	
+}
+#reg{
+  padding:10px;
+  border-radius:10px;
+box-shadow:0px 0px 5px 0px #000;
+}
